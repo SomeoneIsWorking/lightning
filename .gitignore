@@ -42,3 +42,11 @@ lightning.pc
 include/lightning.h
 
 build-aux/
+
+# Maintainer tooling output. Upstream Autotools outputs remain covered above.
+/build/
+/scratch/
+/.venv/
+__pycache__/
+*.pyc
+*~

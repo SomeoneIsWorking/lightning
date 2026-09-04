@@ -1,0 +1,9 @@
+[project]
+name = "lightning-maintainer-tools"
+version = "0.1.0"
+description = "Deterministic build and verification tools for the maintained GNU lightning fork"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv]
+package = false

@@ -3,3 +3,38 @@ that compile assembly code at run time.  For more information,
 look at the info documentation.
 
 For help building lightning, see README-hacking.
+
+
+Maintained port dependency
+==========================
+
+This branch preserves the complete upstream GNU lightning history and starts
+from the signed project release lineage at tag ``lightning-2.2.3`` (commit
+``815f4221e25cad4b81a17169ba8557aed503f18c``).  ``upstream`` points to GNU
+Savannah.  The pinned Gnulib source is fetched from the GitHub mirror because
+Savannah's anonymous HTTPS endpoint is frequently overloaded; the gitlink is
+still the upstream revision selected by GNU lightning 2.2.3.
+
+The maintained build interface is Python and produces a self-contained static
+development prefix under ``build/install/<host>``:
+
+    uv run --frozen python tools/build_lightning.py --clean --cc clang
+
+The installed contract is ``include/lightning.h``, the target-specific headers
+under ``include/lightning/``, ``lib/liblightning.a``, and
+``lib/pkgconfig/lightning.pc``.  Consumers may point CMake's
+``find_path(lightning.h)`` and ``find_library(lightning)`` at that prefix; they
+do not need a runner-specific ``liblightning-dev`` package.
+
+Run the complete asset-free Linux contract with:
+
+    uv run --frozen python tools/verify.py --cc clang
+
+That gate runs GNU lightning's 135 upstream JIT tests, installs the library,
+then compiles and executes a program against the installed prefix.  The
+program emits and calls native code, so a passing build alone cannot
+misrepresent an executable-memory failure as support.
+
+The library remains GNU LGPL v3 or later; build and documentation files retain
+their existing GNU license notices.  See ``COPYING.LESSER`` and the individual
+source headers.  Downstream distribution must continue to satisfy those terms.
