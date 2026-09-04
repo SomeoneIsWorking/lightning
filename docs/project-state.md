@@ -13,7 +13,7 @@ contract across hosts.
 | S002 | Deterministic Python build and install orchestration | verified | `tools/build_lightning.py` validates the pinned Gnulib gitlink, bootstraps, builds, and refuses an incomplete `build/install/<host>` prefix. Tooling unit tests prove cleanup leaves another host profile intact. | G001, G003 |
 | S003 | Linux x86-64 static installed-library execution | verified | Fedora 44 Clang build passes all 135 upstream JIT tests, installs `lightning.h`, the x86 header, `liblightning.a`, and package metadata, then the installed-prefix consumer emits and executes a function returning 42. | G001, G002, G003 |
 | S004 | Consumer interface without a system `liblightning-dev` package | verified | The installed-prefix consumer finds only `build/install/linux-x86_64/include` and `lib`; the documented shape matches Lightrec's `find_path(lightning.h)` and `find_library(lightning)` inputs. | G001, G003 |
-| S005 | Linux x86-64 hosted execution | partial | `.github/workflows/ci.yml` defines the native Clang execution gate; no GitHub remote/run exists yet, so hosted evidence is still missing. | G002 |
+| S005 | Linux x86-64 hosted execution | verified | GitHub Actions run `33890647129` at `f305e50483e9794e8fb0b99fb77d82954a4924e5` passed the full-history, pinned-Gnulib Clang build, all 135 upstream tests, install contract, and emitted-function execution. | G002 |
 | S006 | macOS arm64 native execution | missing | No maintained MAP_JIT/write-protection implementation and signed native execution job is present. | G002 |
 | S007 | Android arm64-v8a native execution | missing | No API-21 AArch64 register-reservation/executable-memory integration and device or emulator execution job is present. | G002 |
 | S008 | Windows x86-64 native execution | missing | No maintained native Windows toolchain, executable-memory contract, or execution job is present. | G002 |
@@ -48,10 +48,8 @@ GNU lightning installation.
 
 ### S005 — Hosted Linux execution
 
-Evidence: a current immutable-action Linux workflow runs the complete local
-gate.
-
-Gap: push the repository and observe the hosted job pass.
+Evidence: GitHub Actions run `33890647129` at exact revision
+`f305e50483e9794e8fb0b99fb77d82954a4924e5` passed the complete native gate.
 
 ### S006 — macOS arm64 execution
 
