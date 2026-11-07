@@ -38,3 +38,5 @@ misrepresent an executable-memory failure as support.
 The library remains GNU LGPL v3 or later; build and documentation files retain
 their existing GNU license notices.  See ``COPYING.LESSER`` and the individual
 source headers.  Downstream distribution must continue to satisfy those terms.
+
+Built with AI assistance (Claude and other LLMs).
