@@ -20,6 +20,13 @@ development prefix under ``build/install/<host>``:
 
     uv run --frozen python tools/build_lightning.py --clean --cc clang
 
+A cross build names the target triple and installs under its own profile
+(``x86_64-w64-mingw32`` installs into ``build/install/windows-x86_64``); it
+cannot run the upstream tests:
+
+    uv run --frozen python tools/build_lightning.py --clean --cc x86_64-w64-mingw32-clang \
+        --host x86_64-w64-mingw32 --skip-upstream-tests
+
 The installed contract is ``include/lightning.h``, the target-specific headers
 under ``include/lightning/``, ``lib/liblightning.a``, and
 ``lib/pkgconfig/lightning.pc``.  Consumers may point CMake's
