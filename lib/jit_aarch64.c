@@ -82,7 +82,7 @@ extern void __clear_cache(void *, void *);
  */
 jit_register_t		_rvs[] = {
     { rc(gpr) | 0x08,			"x8" },
-#if __APPLE__
+#if __APPLE__ || __ANDROID__	/* x18 is the platform register on both */
     { 0x12,				"x18" },
 #else
     { rc(gpr) | 0x12,			"x18" },
