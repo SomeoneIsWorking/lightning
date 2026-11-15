@@ -4844,9 +4844,10 @@ _prolog(jit_state_t *_jit, jit_node_t *node)
     }
 #if __X64 && (__CYGWIN__ || _WIN32)
     for (reg = 0; reg < jit_size(fregs); reg++) {
+	/* Win64 preserves all 128 bits of xmm6-xmm15. */
 	if (jit_regset_tstbit(&_jitc->function->regset, fregs[reg])) {
-	    sse_stxi_d(offs, _RSP_REGNO, rn(fregs[reg]));
-	    offs += sizeof(jit_float64_t);
+	    movdqurm(rn(fregs[reg]), offs, _RSP_REGNO, _NOREG, _SCL1);
+	    offs += 16;
 	}
     }
 #endif
@@ -4918,8 +4919,8 @@ _epilog(jit_state_t *_jit, jit_node_t *node)
 #if __X64 && (__CYGWIN__ || _WIN32)
     for (reg = 0; reg < jit_size(fregs); reg++) {
 	if (jit_regset_tstbit(&_jitc->function->regset, fregs[reg])) {
-	    sse_ldxi_d(rn(fregs[reg]), _RSP_REGNO, offs);
-	    offs += sizeof(jit_float64_t);
+	    movdqumr(offs, _RSP_REGNO, _NOREG, _SCL1, rn(fregs[reg]));
+	    offs += 16;
 	}
     }
 #endif
