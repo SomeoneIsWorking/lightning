@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 
 from .build import BuildOptions, LightningBuilder
-from .layout import BuildLayout, host_profile
+from .layout import BuildLayout, cross_profile, host_profile
 
 
 def repository_root() -> Path:
@@ -23,6 +23,7 @@ def add_build_arguments(parser: argparse.ArgumentParser) -> None:
         help="parallel make jobs",
     )
     parser.add_argument("--clean", action="store_true", help="clean this host profile first")
+    parser.add_argument("--host", help="GNU target triple to cross-compile for, e.g. x86_64-w64-mingw32")
     parser.add_argument(
         "--skip-upstream-tests",
         action="store_true",
@@ -31,11 +32,13 @@ def add_build_arguments(parser: argparse.ArgumentParser) -> None:
 
 
 def builder_from_arguments(arguments: argparse.Namespace) -> LightningBuilder:
-    layout = BuildLayout(repository_root(), host_profile())
+    profile = cross_profile(arguments.host) if arguments.host else host_profile()
+    layout = BuildLayout(repository_root(), profile)
     options = BuildOptions(
         compiler=arguments.cc,
         jobs=arguments.jobs,
         clean=arguments.clean,
         run_upstream_tests=not arguments.skip_upstream_tests,
+        host=arguments.host,
     )
     return LightningBuilder(layout, options)

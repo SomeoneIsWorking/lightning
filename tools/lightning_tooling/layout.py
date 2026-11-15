@@ -21,6 +21,17 @@ def host_profile() -> str:
     return f"{system}-{machine}"
 
 
+def cross_profile(host: str) -> str:
+    """The build and install directory name for a GNU target triple (x86_64-w64-mingw32 -> windows-x86_64)."""
+
+    machine, _, rest = host.partition("-")
+    systems = {"mingw32": "windows", "linux": "linux", "darwin": "macos"}
+    system = next((name for key, name in systems.items() if key in rest), None)
+    if not machine or system is None:
+        raise RuntimeError(f"cannot derive a build profile from target triple {host!r}")
+    return f"{system}-{machine}"
+
+
 @dataclass(frozen=True)
 class BuildLayout:
     """All generated paths owned by one host build."""

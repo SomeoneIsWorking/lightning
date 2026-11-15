@@ -18,6 +18,8 @@ class BuildOptions:
     jobs: int
     clean: bool = False
     run_upstream_tests: bool = True
+    # A GNU target triple to cross-compile for (e.g. x86_64-w64-mingw32); None builds for the build host.
+    host: str | None = None
 
 
 class LightningBuilder:
@@ -26,6 +28,8 @@ class LightningBuilder:
     def __init__(self, layout: BuildLayout, options: BuildOptions) -> None:
         if options.jobs < 1:
             raise ValueError("jobs must be at least one")
+        if options.host and options.run_upstream_tests:
+            raise ValueError("a cross build cannot run the upstream tests; pass --skip-upstream-tests")
         self.layout = layout
         self.options = options
 
@@ -116,6 +120,7 @@ class LightningBuilder:
                 "--disable-shared",
                 "--enable-static",
                 "--disable-disassembler",
+                *([f"--host={self.options.host}"] if self.options.host else []),
                 "CFLAGS=-O2 -g -fno-omit-frame-pointer",
             ],
             cwd=self.layout.work,
