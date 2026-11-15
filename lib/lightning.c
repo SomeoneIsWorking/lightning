@@ -21,6 +21,55 @@
 #include <lightning/jit_private.h>
 #if HAVE_MMAP
 #  include <sys/mman.h>
+#elif defined(_WIN32)
+/* The mmap subset this file uses, over the Win32 virtual memory API. */
+#  define WIN32_LEAN_AND_MEAN
+#  define NOMINMAX
+#  include <windows.h>
+#  undef HAVE_MMAP
+#  define HAVE_MMAP			1
+#  define PROT_READ			1
+#  define PROT_WRITE			2
+#  define PROT_EXEC			4
+#  define MAP_PRIVATE			2
+#  define MAP_ANON			0x20
+#  define MAP_FAILED			((void *)-1)
+static DWORD
+win32_protection(int prot)
+{
+    if (prot & PROT_EXEC)
+	return (prot & PROT_WRITE) ? PAGE_EXECUTE_READWRITE : PAGE_EXECUTE_READ;
+    if (prot & PROT_WRITE)
+	return PAGE_READWRITE;
+    return (prot & PROT_READ) ? PAGE_READONLY : PAGE_NOACCESS;
+}
+
+static void *
+mmap(void *address, size_t length, int prot, int flags, int fd, long offset)
+{
+    void	*pointer;
+    (void)flags;
+    (void)fd;
+    (void)offset;
+    pointer = VirtualAlloc(address, length, MEM_RESERVE | MEM_COMMIT,
+			   win32_protection(prot));
+    return (pointer ? pointer : MAP_FAILED);
+}
+
+static int
+munmap(void *address, size_t length)
+{
+    (void)length;
+    return (VirtualFree(address, 0, MEM_RELEASE) ? 0 : -1);
+}
+
+static int
+mprotect(void *address, size_t length, int prot)
+{
+    DWORD	 previous;
+    return (VirtualProtect(address, length, win32_protection(prot),
+			   &previous) ? 0 : -1);
+}
 #endif
 #if defined(__sgi)
 #  include <fcntl.h>
