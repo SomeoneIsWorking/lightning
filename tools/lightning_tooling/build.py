@@ -121,11 +121,18 @@ class LightningBuilder:
                 "--enable-static",
                 "--disable-disassembler",
                 *([f"--host={self.options.host}"] if self.options.host else []),
-                "CFLAGS=-O2 -g -fno-omit-frame-pointer",
+                f"CFLAGS=-O2 -g -fno-omit-frame-pointer{self._darwin_arch()}",
             ],
             cwd=self.layout.work,
             environment={"CC": require_program(self.options.compiler)},
         )
+
+    def _darwin_arch(self) -> str:
+        # Apple's clang targets its own machine whatever --host says; -arch picks the triple's.
+        host = self.options.host
+        if not host or "darwin" not in host:
+            return ""
+        return f" -arch {host.partition('-')[0]}"
 
     def _make_library(self) -> None:
         run(
