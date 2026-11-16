@@ -10,18 +10,26 @@ from pathlib import Path
 
 
 _INSTALL_HINTS = {
-    "autoreconf": "sudo dnf install autoconf automake (Fedora) or sudo apt install autoconf automake (Ubuntu)",
-    "libtoolize": "sudo dnf install libtool (Fedora) or sudo apt install libtool (Ubuntu)",
+    "autoreconf": "sudo dnf install autoconf automake (Fedora), sudo apt install autoconf automake (Ubuntu) "
+    "or brew install autoconf automake (macOS)",
+    "libtoolize": "sudo dnf install libtool (Fedora), sudo apt install libtool (Ubuntu) or brew install libtool (macOS)",
     "make": "sudo dnf install make (Fedora) or sudo apt install make (Ubuntu)",
+}
+
+# Homebrew installs GNU libtoolize as glibtoolize beside Apple's unrelated libtool; gnulib's bootstrap looks
+# for both names.
+_ALIASES = {
+    "libtoolize": ("libtoolize", "glibtoolize"),
 }
 
 
 def require_program(program: str) -> str:
     """Resolve a program or refuse with the exact native-package command."""
 
-    resolved = shutil.which(program)
-    if resolved is not None:
-        return resolved
+    for name in _ALIASES.get(program, (program,)):
+        resolved = shutil.which(name)
+        if resolved is not None:
+            return resolved
     hint = _INSTALL_HINTS.get(program, f"install {program} with the platform package manager")
     raise RuntimeError(f"required program '{program}' is missing; {hint}")
 
